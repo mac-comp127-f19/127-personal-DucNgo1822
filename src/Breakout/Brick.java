@@ -5,7 +5,7 @@ import comp127graphics.Rectangle;
 import java.awt.*;
 
 public class Brick extends Rectangle {
-    private static final int WIDTH = 10;
+    private static final int WIDTH = 20;
     private static final int HEIGHT = 20;
     private double upperX, upperY;
 

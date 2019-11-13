@@ -1,19 +1,20 @@
 package Breakout;
 
 import comp127graphics.CanvasWindow;
+import comp127graphics.FontStyle;
 import comp127graphics.GraphicsText;
-
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 
-public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
+
+public class BreakoutGame {
 
     private static final int CANVAS_WIDTH = 800;
     private static final int CANVAS_HEIGHT = 1000;
 
+    private CanvasWindow canvas;
+
     private GraphicsText livesText, loseText, winText;
-    private int livesCount = 4;
+    private int livesCount = 3;
     private Ball ball;
     private BrickWall wall;
     private Paddle paddle;
@@ -23,9 +24,8 @@ public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
      *
      */
     public BreakoutGame() {
-        super("Breakout!", CANVAS_WIDTH, CANVAS_HEIGHT);
-        this.setBackground(new Color(176, 235, 255, 158));
-
+        canvas = new CanvasWindow ("Breakout!", CANVAS_WIDTH, CANVAS_HEIGHT);
+        canvas.setBackground(new Color(176, 235, 255, 158));
     }
 
     /**
@@ -35,6 +35,8 @@ public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
     public static void main(String[] args){
         BreakoutGame program = new BreakoutGame();
         program.createEverything();
+        program.makepaddlemove();
+        program.runRound();
     }
 
     /**
@@ -48,64 +50,68 @@ public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
     }
 
     public void createBrickWall() {
-        wall = new BrickWall(this);
+        wall = new BrickWall(canvas);
         wall.addBrick();
     }
 
     public void createBall(){
-        ball = new Ball(300,300);
-        this.add(ball);
+        ball = new Ball(400,400);
+        canvas.add(ball);
     }
 
     public void createPaddle(){
-        paddle = new Paddle(0,900);
-        this.add(paddle);
+        paddle = new Paddle(400,700);
+        canvas.add(paddle);
     }
 
     public void createLivesText(){
-        livesText = new GraphicsText(""+livesCount,CANVAS_WIDTH/2,CANVAS_HEIGHT/2);
-        if (livesCount == 4){
+        livesText = new GraphicsText("Number of lives: "+livesCount, 300, 600);
+        if (livesCount == 3){
             livesText.setFillColor(new Color(250,250,60));
-        }
-        else if (livesCount == 3){
-            livesText.setFillColor(new Color(0,250,0));
+            livesText.setFont(FontStyle.BOLD, 16);
         }
         else if (livesCount == 2){
+            livesText.setFillColor(new Color(0,250,0));
+            livesText.setFont(FontStyle.BOLD,16);
+        }
+        else if (livesCount == 1){
             livesText.setFillColor(new Color(55, 134,150));
+            livesText.setFont(FontStyle.BOLD, 16);
         }
-        else if (livesCount == 1) {
-            livesText.setFillColor(new Color(250, 3, 6));
-        }
-        this.add(livesText);
+        canvas.add(livesText);
     }
 
     /**
      * Run a round and check if win or lose
      */
     public void runRound() {
-        while (livesCount > 0 && !wall.isEmpty()) {
-            ball.updatePosition();
-            ball.hitScreen(this);
-            ball.hitBrick(this,wall);
-            ball.hitPaddle(this, paddle);
-            this.pause(25);
-        }
-        if (livesCount == 0) {
-            lose();
-        }
-        if (wall.isEmpty()) {
-            win();
-        }
+            canvas.animate(() ->{
+                if (livesCount > 0 || !wall.isEmpty()) {
+                    ball.updatePosition();
+                    ball.hitScreen(this);
+                    ball.hitBrick(canvas, wall);
+                    ball.hitPaddle(canvas, paddle);
+                    canvas.pause(25);
+                }
+                if (livesCount == 0) {
+                    lose();
+                }
+                else if (wall.isEmpty()) {
+                    win();
+                }
+            });
+
     }
 
     /**
      * If win: remove all from the canvas and add a winning text and exit the program
      */
     public void win(){
-        this.removeAll();
         winText = new GraphicsText("YOU WON!!!", 150, CANVAS_HEIGHT/2 +50);
-        this.add(winText);
-        pause(5000);
+        canvas.add(winText);
+        canvas.draw();
+        canvas.pause(5000);
+        canvas.removeAll();
         System.exit(0);
 
     }
@@ -114,14 +120,19 @@ public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
      * If lose: remove all from the canvas and add a losing text and exit the program
      */
     public void lose(){
-        this.removeAll();
-        loseText  = new GraphicsText(" YOU LOST :(((" , 150, CANVAS_HEIGHT/2 +50);
-        this.add(loseText);
-        pause(5000);
+        loseText  = new GraphicsText(" YOU LOST :(((" , 300, 700);
+        canvas.add(loseText);
+        canvas.draw();
+        canvas.pause(5000);
+        canvas.removeAll();
         System.exit(0);
     }
     public int getCanvasWidth(){
         return CANVAS_WIDTH;
+    }
+
+    public CanvasWindow getCanvas(){
+        return canvas;
     }
 
     public int getCanvasHeight(){
@@ -134,21 +145,16 @@ public class BreakoutGame extends CanvasWindow implements MouseMotionListener {
 
     public void updateLives(){
         livesCount--;
-        remove(livesText);
+        canvas.remove(livesText);
         createLivesText();
     }
 
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
+    public void makepaddlemove() {
+        canvas.onMouseMove(i -> {
+            paddle.setCenter(i.getPosition().getX(), 700);
+        });
     }
 
 
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        int x = e.getX();
-        if ((x+paddle.getPaddleWidth()) <= CANVAS_WIDTH){
-            paddle.updatePosition(x);
-        }
-    }
+
 }

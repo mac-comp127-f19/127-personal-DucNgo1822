@@ -1,12 +1,12 @@
 package Breakout;
 
 import comp127graphics.Rectangle;
-
+import comp127graphics.GraphicsObject;
 import java.awt.*;
 
 public class Paddle extends Rectangle {
-    private static final int WIDTHPaddle = 150;
-    private static final int HEIGHTPaddle = 10;
+    private static final int WIDTHPaddle = 100;
+    private static final int HEIGHTPaddle = 30;
     private int x, y;
 
     /**
@@ -31,7 +31,8 @@ public class Paddle extends Rectangle {
     }
 
     public void updatePosition(int upperX) {
-        this.x = x;
+        this.x = upperX;
+
         this.setPosition(x,this.y);
     }
 

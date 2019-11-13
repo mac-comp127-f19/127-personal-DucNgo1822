@@ -1,54 +1,56 @@
 package Breakout;
 
+import comp127graphics.CanvasWindow;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BrickWall {
-    private int numBricks = 100;
+    private int numBricks = 400;
     private List<Brick> bricks = new ArrayList<>();
-    private BreakoutGame window;
+    private CanvasWindow canvas;
     private int startX = 0, startY = 30;
     private Color color;
 
-    public BrickWall(BreakoutGame window) {
-        this.window = window;
+    public BrickWall(CanvasWindow canvas) {
+        this.canvas = canvas;
     }
 
     public void addBrick() {
         for (int i=0;i < numBricks; i++) {
-            if (i < 10) {
+            if (i < 40) {
                 color = new Color(250, 38, 20);
             }
-            else if (i <20){
+            else if (i < 80){
                 color = new Color(255, 134, 7);
             }
-            else if (i < 30) {
+            else if (i < 120) {
                 color = new Color(255, 253, 138);
             }
-            else if (i < 40) {
+            else if (i < 160) {
                 color = new Color(159, 255, 46);
             }
-            else if (i < 50) {
+            else if (i < 200) {
                 color = new Color(94, 210, 132);
             }
-            else if (i < 60) {
+            else if (i < 240) {
                 color = new Color(37, 195, 255);
             }
-            else if (i < 70) {
+            else if (i < 280) {
                 color = new Color(17, 83, 255);
             }
-            else if (i < 80) {
+            else if (i < 320) {
                 color = new Color(107, 51, 255);
             }
-            else if (i<90){
+            else if (i< 360){
                 color = new Color(183, 26, 255);
             }
-            else if (i < 100) {
+            else if (i < 400) {
                 color = new Color(242, 255, 229);
             }
             Brick brick = new Brick(startX,startY,color);
-            window.add(brick);
+            canvas.add(brick);
             bricks.add(brick);
             startX = startX + brick.getBrickWidth();
             if (startX == 800) {
@@ -60,7 +62,7 @@ public class BrickWall {
 
     public void removeAllBricks(){
         for(Brick b : bricks){
-            window.remove(b);
+            canvas.remove(b);
         }
         bricks.clear();
     }
@@ -86,5 +88,7 @@ public class BrickWall {
     public void setNumBricks(int newNumBricks){
         numBricks = newNumBricks;
     }
+
+
 
 }

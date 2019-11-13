@@ -1,13 +1,14 @@
 package Breakout;
 
+import comp127graphics.CanvasWindow;
 import comp127graphics.Ellipse;
 import comp127graphics.GraphicsObject;
 
 import java.awt.*;
 
-public class Ball extends Ellipse {
+public class Ball extends Ellipse{
     private static final double RADIUS = 10;
-    private double xDirection = 20, yDirection = 20, leftX, upperY;
+    private double xDirection = 4, yDirection = 4, upperX, upperY;
 
     /**
      *
@@ -16,12 +17,12 @@ public class Ball extends Ellipse {
      * The default creates an ellipse at position x,y with a bounding rectangle of width and height.
      * The ellipse is drawn with a 1 pixel black stroke outline by default.
      *
-     * @param ulX    upper left position
-     * @param ulY    upper left position
+     * @param ulX    upper left position for the ball
+     * @param ulY    upper left position for the ball
      */
     public Ball(double ulX, double ulY) {
         super(ulX,ulY,RADIUS*2,RADIUS*2);
-        this.leftX = ulX;
+        this.upperX = ulX;
         this.upperY = ulY;
         color(new Color(50,50,100,200));
     }
@@ -32,7 +33,7 @@ public class Ball extends Ellipse {
     }
 
     public double getLeftX() {
-        return this.leftX;
+        return this.upperX;
     }
 
     public double getUpperY() {
@@ -60,70 +61,74 @@ public class Ball extends Ellipse {
     }
 
     public void updatePosition() {
-        leftX = leftX+xDirection;
+        upperX = upperX+xDirection;
         upperY = upperY +yDirection;
         this.moveBy(xDirection,yDirection);
     }
 
-    public void hitScreen(BreakoutGame window) {
-        if (this.leftX+RADIUS*2 >= window.getCanvasWidth() || this.leftX == 0) {
+    public void hitScreen(BreakoutGame canvas) {
+        if (this.upperX+RADIUS*2 >= canvas.getCanvasWidth() || this.upperX <= 0) {
             this.changeXDirection();
         }
         if (this.upperY == 0) {
             this.changeYDirection();
+
         }
-        if (this.upperY+RADIUS*2 >=window.getCanvasHeight()){
-            resetBall(window);
-            window.updateLives();
+        if ( this.upperY + RADIUS * 2 >= canvas.getCanvasHeight()){
+            resetBall(canvas);
+            canvas.updateLives();
         }
     }
 
 
-    public void hitBrick(BreakoutGame window, BrickWall wall){
-        GraphicsObject upperRight = window.getElementAt(leftX+RADIUS*2,upperY);
-        GraphicsObject upperLeft = window.getElementAt(leftX,upperY);
-        GraphicsObject lowerRight = window.getElementAt(leftX+RADIUS*2,upperY+RADIUS*2);
-        GraphicsObject lowerLeft = window.getElementAt(leftX,upperY+RADIUS*2);
+    public void hitBrick(CanvasWindow canvas, BrickWall wall){
+        GraphicsObject upperRight = canvas.getElementAt(upperX+RADIUS*2,upperY);
+        GraphicsObject upperLeft = canvas.getElementAt(upperX,upperY);
+        GraphicsObject lowerRight = canvas.getElementAt(upperX+RADIUS*2,upperY+RADIUS*2);
+        GraphicsObject lowerLeft = canvas.getElementAt(upperX,upperY+RADIUS*2);
 
         if(upperRight instanceof Brick){
             this.changeYDirection();
-            window.remove(upperRight);
+            canvas.remove(upperRight);
             wall.isHit();
         }
 
         if (upperLeft instanceof Brick && !upperLeft.equals(upperRight)){
             this.changeYDirection();
-            window.remove(upperLeft);
+            canvas.remove(upperLeft);
             wall.isHit();
         }
 
         if(lowerLeft instanceof Brick &&!lowerLeft.equals(upperLeft) && !lowerLeft.equals(upperRight)){
             this.changeYDirection();
-            window.remove(lowerLeft);
+            canvas.remove(lowerLeft);
             wall.isHit();
         }
 
         if (lowerRight instanceof Brick && !lowerRight.equals(lowerLeft) && !lowerRight.equals(upperRight)){
             this.changeYDirection();
-            window.remove(lowerRight);
+            canvas.remove(lowerRight);
             wall.isHit();
         }
     }
 
-    public void hitPaddle(BreakoutGame window, Paddle paddle){
-        GraphicsObject lowerLeft = window.getElementAt(leftX,upperY+RADIUS*2);
-        GraphicsObject lowerRight = window.getElementAt(leftX+RADIUS*2,upperY+RADIUS*2);
+    public void hitPaddle(CanvasWindow canvas, Paddle paddle){
+        GraphicsObject lowerLeft = canvas.getElementAt(upperX,upperY+RADIUS*2);
+        GraphicsObject lowerRight = canvas.getElementAt(upperX+RADIUS*2,upperY+RADIUS*2);
 
-        if ((lowerLeft instanceof Paddle || lowerRight instanceof Paddle)
-                && (upperY+RADIUS*2) <= paddle.getPaddleY() ){
+        if ((lowerLeft instanceof Paddle || lowerRight instanceof Paddle) || (upperY + RADIUS * 2 == paddle.getPaddleY() || (upperY + RADIUS *2 == paddle.getPaddleX() + paddle.getPaddleHeight()))) {
             this.changeYDirection();
         }
     }
 
-    public void resetBall(BreakoutGame window){
-        window.remove(this);
-        window.createBall();
+    public void resetBall(BreakoutGame canvas){
+        canvas.getCanvas().remove(this);
+        canvas.createBall();
     }
+
+
+
+
 
 
 }
